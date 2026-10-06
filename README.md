@@ -45,5 +45,3 @@ Individual Reflection on individual contribution and performance of team – 20%
 
 Due Date: 	Week 12  
 
-
-PETER 🇮🇪
