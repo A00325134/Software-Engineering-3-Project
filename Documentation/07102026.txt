@@ -1,0 +1,4 @@
+sdlc -> plan
+
+command line menu/ processing engine/ database
+     java	  customer orders    classes
