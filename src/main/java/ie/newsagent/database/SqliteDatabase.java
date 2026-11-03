@@ -33,6 +33,13 @@ public final class SqliteDatabase {
     }
 
     public Connection openConnection() throws SQLException {
+        // Explicit loading keeps direct IDE launches reliable when JDBC service
+        // provider discovery is unavailable or disabled by the run configuration.
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException exception) {
+            throw new SQLException("SQLite JDBC driver is missing from the runtime classpath", exception);
+        }
         Connection connection = DriverManager.getConnection(jdbcUrl);
         try (Statement statement = connection.createStatement()) {
             statement.execute("PRAGMA foreign_keys = ON");
