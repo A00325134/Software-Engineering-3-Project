@@ -24,7 +24,7 @@ class ConsoleUiAcceptanceTest {
         var output=run("1\n2\nAlex Murphy\n0871234567\n10 Main Street\nD02X285\n1\n1\n1\n0\n",customers);
         assertTrue(output.contains("Created customer"));
         assertTrue(output.contains("Alex Murphy"));
-        assertTrue(output.contains("area 1"));
+        assertTrue(output.contains("area 2"));
     }
     @Test void customerCreateEditRetrieveAndDeleteWorkThroughSQLiteMenus() {
         var db=SqliteDatabase.fromPath(dir.resolve("customer-flow.db"));
