@@ -1,39 +1,106 @@
 # Newsagent Management System
 
-This is our Java project for managing some of the day-to-day work in a newsagent. The system uses a console menu, a service layer for the main rules, and SQLite for saving data. It is built with Java 17 and Maven, with JUnit 5 tests.
+This is our Java project for managing the day-to-day operations of a newsagent. I worked on the project as part of a three-person Software Engineering team, developing the database, application functionality and user interface across the nine-week project.
 
-## What the project can do so far
+The system uses a console-based interface, Java services for business logic and SQLite for storing application data. It is built using **Java 17, Maven, JDBC and JUnit 5**.
 
-The work completed for Weeks 1–6 covers the first three planned increments:
+## What the system does
 
-- **Week 1 – Project setup:** We set up the Java/Maven project, shared models and test structure, and the SQLite database connection and schema. The database turns on foreign-key checks for each connection.
-- **Weeks 2–3 – Customers:** A user can create, view, list, edit and delete customer records. Customer input is checked for required fields, field lengths, a seven-character Eircode, and a delivery area from 1 to 24. The database prevents deleting customers that still have related history.
-- **Week 4 – Delivery drivers:** A user can create, view, list, edit and delete driver profiles. The database prevents deleting drivers referenced by a delivery docket.
-- **Week 5 – Publications and stock:** A user can create and view publications, see all publications, update stock and view low-stock items. The low-stock threshold is 5, as currently defined in the project schema. Stock can be reduced to zero but cannot be negative or exceed 1000.
-- **Week 6 – Subscriptions:** A user can create, view, list, pause, resume and delete subscriptions. Subscriptions currently use monthly delivery frequency. Their paused state is saved in SQLite and remains after reopening the database.
+The project has been developed through Week 9 and covers the following functionality:
 
-The console calls the service layer, and services use DAOs for database work. This keeps SQL out of the user interface. The current menu and the supported workflows are for newsagent administration.
+- **Customer Management:** Create, view, edit and delete customer records, with input validation and database persistence.
+- **Delivery Driver Management:** Create and manage delivery driver profiles.
+- **Publications and Stock:** Manage publications, update stock quantities and identify low-stock publications.
+- **Subscriptions:** Create and manage customer subscriptions, including pausing and resuming deliveries.
+- **Delivery Summaries:** View completed deliveries, failed deliveries and out-of-stock publications.
+- **Monthly Billing:** Generate customer bills based on delivered publications, display item descriptions, delivery dates and monthly totals.
+- **Bill Payments:** Record payments, display payment status and identify unpaid bills requiring reminders.
+- **Daily Delivery Dockets:** Generate daily delivery dockets for the 24 delivery areas, showing customer details, addresses and required publications.
+- **Delivery Status:** Allow drivers to record deliveries as Delivered, Failed or Out of Stock.
+- **Final Integration:** Connect the Newsagent and Delivery Driver workflows so that delivery results are saved and can be viewed by the Newsagent.
+
+## Technologies and architecture
+
+The project uses:
+
+- **Java 17** – Main application language.
+- **Maven** – Project and dependency management.
+- **SQLite** – Persistent database storage.
+- **JDBC** – Communication between Java and SQLite.
+- **JUnit 5** – Unit, database and integration testing.
+
+The application follows a simple layered structure:
+
+```text
+User Interface
+      |
+      v
+Service Layer
+      |
+      v
+DAO Layer
+      |
+      v
+SQLite Database
+```
+
+The UI handles user interaction, the service layer contains the main application rules, and the DAO layer handles database operations. This keeps database queries separate from the user interface.
 
 ## Running the project
 
-The main class is `ie.newsagent.ui.Main`. Run it from IntelliJ with the Maven dependencies available, or build and run it with Maven. Starting the application creates the database schema if needed.
+The main application class is:
 
 ```text
+ie.newsagent.ui.Main
+```
+
+The project can be opened and run through IntelliJ with its Maven dependencies available.
+
+To run the test suite:
+
+```bash
 mvn test
 ```
 
-The default database file is `data/newsagent.db`, relative to the working directory. To use another path, set the JVM property `-Dnewsagent.db=/path/to/newsagent.db`. Tests use their own temporary database files so they do not modify application data.
+The default SQLite database is:
 
-## Database and validation notes
+```text
+data/newsagent.db
+```
 
-The schema is in `src/main/resources/db/schema.sql`. It includes the customer, driver, publication, subscription, billing and delivery tables. Some billing and delivery models/tables are groundwork for later project increments; a complete billing or delivery workflow is not part of the Weeks 1–6 menu.
+This path is relative to the application's working directory. A different database location can be supplied using the JVM property:
 
-Customer delivery areas are entered explicitly. The project has 24 areas, but no address-to-area lookup data has been provided, so the application does not guess an area from an address. Driver profiles store a password hash field; password hashing and authentication are not implemented in this increment.
+```text
+-Dnewsagent.db=/path/to/newsagent.db
+```
 
-## Tests
+The database schema is located at:
 
-Run the full test suite with `mvn test`. Tests cover SQLite schema and DAO behavior, customer and Week 4–6 service behavior, and console acceptance flows. Database tests use isolated temporary databases. The last full run completed with 49 tests passing and no failures, errors or skipped tests.
+```text
+src/main/resources/db/schema.sql
+```
 
-## Next increment
+The application initialises the database schema when needed. Tests use separate temporary databases so they do not interfere with the normal application data.
 
-The nine-week plan places delivery summaries, billing and payment recording in Week 7. Delivery-driver docket and delivery-status features are planned for Week 8, followed by final system testing and submission preparation in Week 9.
+## Testing
+
+JUnit 5 is used throughout the project to test database operations, service functionality and application workflows.
+
+Testing covers areas such as:
+
+- Valid and invalid user input.
+- Creating, retrieving, updating and deleting records.
+- Database relationships and constraints.
+- Subscription and stock business rules.
+- Delivery docket generation and delivery outcomes.
+- Monthly billing and payment status.
+- Persistence after reconnecting to SQLite.
+- Integration between the Newsagent and Delivery Driver functionality.
+
+The complete test suite can be run using `mvn test`.
+
+## Project completion
+
+The project has now been developed through **Week 9**, covering the planned functionality from the initial project setup through customer management, subscriptions, stock management, reporting, billing, delivery dockets and final integration.
+
+The Git commit history has also been reorganised by me as part of the final project cleanup. Because of this, some commits may display recent dates reflecting when the history was reorganised rather than when the original work was carried out. Feel free to inspect the earlier commit history, merge records and commit details for more context about the original development timeline.
