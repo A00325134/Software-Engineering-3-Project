@@ -10,23 +10,23 @@ CREATE TABLE IF NOT EXISTS customer (
 );
 
 CREATE TABLE IF NOT EXISTS delivery_driver (
-    driver_id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    password_hash TEXT NOT NULL
+    driver_id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(driver_id)) > 0),
+    name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+    password_hash TEXT NOT NULL CHECK (length(trim(password_hash)) > 0)
 );
 
 CREATE TABLE IF NOT EXISTS publication (
-    publication_id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    stock_quantity INTEGER NOT NULL CHECK (stock_quantity >= 0),
-    low_stock_threshold INTEGER NOT NULL DEFAULT 5 CHECK (low_stock_threshold >= 0)
+    publication_id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(publication_id)) > 0),
+    name TEXT NOT NULL CHECK (length(trim(name)) BETWEEN 3 AND 50),
+    stock_quantity INTEGER NOT NULL CHECK (stock_quantity BETWEEN 0 AND 1000),
+    low_stock_threshold INTEGER NOT NULL DEFAULT 5 CHECK (low_stock_threshold = 5)
 );
 
 CREATE TABLE IF NOT EXISTS subscription (
-    subscription_id TEXT PRIMARY KEY,
+    subscription_id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(subscription_id)) > 0),
     customer_id TEXT NOT NULL,
     publication_id TEXT NOT NULL,
-    delivery_frequency TEXT NOT NULL,
+    delivery_frequency TEXT NOT NULL CHECK (delivery_frequency IN ('MONTHLY')),
     paused INTEGER NOT NULL DEFAULT 0 CHECK (paused IN (0, 1)),
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE RESTRICT,
     FOREIGN KEY (publication_id) REFERENCES publication(publication_id) ON DELETE RESTRICT

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface SubscriptionDao {
     Subscription save(Subscription subscription);
+    boolean update(Subscription subscription);
     Optional<Subscription> findById(String subscriptionId);
     List<Subscription> findByCustomerId(String customerId);
     List<Subscription> findAll();

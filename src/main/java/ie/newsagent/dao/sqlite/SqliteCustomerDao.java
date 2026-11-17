@@ -61,6 +61,28 @@ public class SqliteCustomerDao implements CustomerDao {
     }
 
     @Override
+    public boolean updateById(String customerId, Customer customer) {
+        Objects.requireNonNull(customer, "customer");
+        if (!Objects.equals(customerId, customer.getCustomerId())) {
+            throw new IllegalArgumentException("Customer ID cannot be changed during an update");
+        }
+        String sql = "UPDATE customer SET name = ?, phone_number = ?, address = ?, eircode = ?, " +
+                "delivery_area = ? WHERE customer_id = ?";
+        try (var connection = database.openConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, customer.getName());
+            statement.setString(2, customer.getPhoneNumber());
+            statement.setString(3, customer.getAddress());
+            statement.setString(4, customer.getEircode());
+            statement.setInt(5, customer.getDeliveryArea());
+            statement.setString(6, customerId);
+            return statement.executeUpdate() == 1;
+        } catch (SQLException exception) {
+            throw new DatabaseException("Could not update customer " + customerId, exception);
+        }
+    }
+
+    @Override
     public List<Customer> findAll() {
         String sql = "SELECT " + COLUMNS + " FROM customer ORDER BY customer_id";
         try (var connection = database.openConnection();

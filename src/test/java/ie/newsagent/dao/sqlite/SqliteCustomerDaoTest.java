@@ -127,6 +127,52 @@ class SqliteCustomerDaoTest {
         assertThrows(DatabaseException.class, () -> customerDao.save(invalidArea));
     }
 
+    @Test
+    void updatesExistingCustomerWithoutChangingItsId() {
+        Customer original = customer("C1234", "Alex Murphy", "0871234567", "10 Main Street", "D02X285", 1);
+        customerDao.save(original);
+        Customer changed = customer("C1234", "Alex Murphy Updated", "0861234567", "12 Main Street", "D02X286", 2);
+
+        assertTrue(customerDao.updateById("C1234", changed));
+        assertEquals("Alex Murphy Updated", customerDao.findById("C1234").orElseThrow().getName());
+        assertFalse(customerDao.updateById("C9999", customer("C9999", "Missing Person", "0871234567",
+                "10 Main Street", "D02X285", 1)));
+        assertThrows(IllegalArgumentException.class, () -> customerDao.updateById("other", changed));
+    }
+
+    @Test
+    void rejectsInvalidUpdatesAndPreservesCustomerWhenUpdateFails() {
+        customerDao.save(customer("C1234", "Alex Murphy", "0871234567", "10 Main Street", "D02X285", 1));
+        Customer invalid = customer("C1234", "Al", "0871234567", "10 Main Street", "D02X285", 1);
+
+        assertThrows(DatabaseException.class, () -> customerDao.updateById("C1234", invalid));
+        assertEquals("Alex Murphy", customerDao.findById("C1234").orElseThrow().getName());
+    }
+
+    @Test
+    void deleteIsRestrictedWhileSubscriptionHistoryReferencesCustomer() {
+        SqliteDatabase database = SqliteDatabase.fromPath(temporaryDirectory.resolve("customers.db"));
+        var publicationDao = new SqlitePublicationDao(database);
+        var subscriptionDao = new SqliteSubscriptionDao(database);
+        customerDao.save(customer("C1234", "Alex Murphy", "0871234567", "10 Main Street", "D02X285", 1));
+        publicationDao.save(new ie.newsagent.model.Publication("P1", "Daily News", 20));
+        subscriptionDao.save(new ie.newsagent.model.Subscription("S1", "C1234", "P1",
+                ie.newsagent.model.DeliveryFrequency.MONTHLY));
+
+        assertThrows(DatabaseException.class, () -> customerDao.deleteById("C1234"));
+        assertTrue(customerDao.findById("C1234").isPresent());
+        assertTrue(subscriptionDao.findById("S1").isPresent());
+    }
+
+    @Test
+    void customerRemainsSavedAfterDatabaseIsReopened() {
+        customerDao.save(customer("C1234", "Alex Murphy", "0871234567", "10 Main Street", "D02X285", 1));
+        SqliteDatabase reopened = SqliteDatabase.fromPath(temporaryDirectory.resolve("customers.db"));
+        reopened.initialiseSchema();
+
+        assertEquals("Alex Murphy", new SqliteCustomerDao(reopened).findById("C1234").orElseThrow().getName());
+    }
+
     private Customer customer(String id, String name, String phone, String address,
                                String eircode, int deliveryArea) {
         return new Customer(id, name, phone, address, eircode, deliveryArea);

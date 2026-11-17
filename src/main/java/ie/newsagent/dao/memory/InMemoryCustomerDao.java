@@ -17,6 +17,15 @@ public class InMemoryCustomerDao implements CustomerDao {
     }
 
     @Override
+    public boolean updateById(String customerId, Customer customer) {
+        if (!records.containsKey(customerId) || !customerId.equals(customer.getCustomerId())) {
+            return false;
+        }
+        records.put(customerId, customer);
+        return true;
+    }
+
+    @Override
     public Optional<Customer> findById(String customerId) {
         return Optional.ofNullable(records.get(customerId));
     }

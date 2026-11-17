@@ -7,8 +7,9 @@ import java.util.Optional;
 public interface CustomerDao {
     /** Inserts a new customer; implementations should reject an existing ID. */
     Customer save(Customer customer);
+    boolean updateById(String customerId, Customer customer);
     Optional<Customer> findById(String customerId);
     List<Customer> findAll();
-    /** Reserved for the Week 3 customer increment; false means no row matched. */
+    /** False means no row matched; related history may restrict deletion. */
     boolean deleteById(String customerId);
 }

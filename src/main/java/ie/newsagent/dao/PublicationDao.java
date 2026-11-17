@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface PublicationDao {
     Publication save(Publication publication);
+    boolean updateStock(String publicationId, int stockQuantity);
     Optional<Publication> findById(String publicationId);
     List<Publication> findAll();
     boolean deleteById(String publicationId);
