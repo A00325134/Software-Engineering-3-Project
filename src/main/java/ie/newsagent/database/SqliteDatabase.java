@@ -83,9 +83,26 @@ public final class SqliteDatabase {
                     if (!trimmed.isEmpty()) statement.execute(trimmed);
                 }
             }
+            // Small, additive migration for databases created before Week 7 docket/item links.
+            ensureColumn(connection, "bill", "docket_reference",
+                    "ALTER TABLE bill ADD COLUMN docket_reference TEXT REFERENCES delivery_docket(docket_reference)");
+            ensureColumn(connection, "bill_item", "delivery_reference",
+                    "ALTER TABLE bill_item ADD COLUMN delivery_reference TEXT REFERENCES delivery(delivery_reference)");
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_bill_customer_month ON bill(customer_id,billing_month)");
+                statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_bill_item_delivery ON bill_item(delivery_reference) WHERE delivery_reference IS NOT NULL");
+            }
         } catch (SQLException | IOException exception) {
             throw new DatabaseException("Could not initialise SQLite schema", exception);
         }
+    }
+
+    private void ensureColumn(Connection connection, String table, String column, String alterSql) throws SQLException {
+        try (Statement statement = connection.createStatement();
+             var result = statement.executeQuery("PRAGMA table_info(" + table + ")")) {
+            while (result.next()) if (column.equals(result.getString("name"))) return;
+        }
+        try (Statement statement = connection.createStatement()) { statement.execute(alterSql); }
     }
 
     public String getJdbcUrl() {

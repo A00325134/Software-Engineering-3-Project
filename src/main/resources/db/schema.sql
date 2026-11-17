@@ -36,19 +36,24 @@ CREATE TABLE IF NOT EXISTS bill (
     bill_reference TEXT PRIMARY KEY,
     customer_id TEXT NOT NULL,
     billing_month TEXT NOT NULL,
-    monthly_total NUMERIC NOT NULL CHECK (monthly_total >= 0),
+    monthly_total NUMERIC NOT NULL CHECK (monthly_total >= 0 AND length(CAST(monthly_total AS TEXT)) BETWEEN 1 AND 8),
     payment_status TEXT NOT NULL CHECK (payment_status IN ('PAID', 'UNPAID')),
-    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE RESTRICT
+    docket_reference TEXT,
+    UNIQUE (customer_id, billing_month),
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE RESTRICT,
+    FOREIGN KEY (docket_reference) REFERENCES delivery_docket(docket_reference) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS bill_item (
     bill_reference TEXT NOT NULL,
     item_number INTEGER NOT NULL,
-    item_name TEXT NOT NULL,
+    item_name TEXT NOT NULL CHECK (length(trim(item_name)) BETWEEN 3 AND 50),
     delivery_date TEXT NOT NULL,
     amount NUMERIC NOT NULL CHECK (amount >= 0),
+    delivery_reference TEXT,
     PRIMARY KEY (bill_reference, item_number),
-    FOREIGN KEY (bill_reference) REFERENCES bill(bill_reference) ON DELETE RESTRICT
+    FOREIGN KEY (bill_reference) REFERENCES bill(bill_reference) ON DELETE RESTRICT,
+    FOREIGN KEY (delivery_reference) REFERENCES delivery(delivery_reference) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS delivery_docket (
@@ -67,6 +72,10 @@ CREATE TABLE IF NOT EXISTS delivery (
     FOREIGN KEY (docket_reference) REFERENCES delivery_docket(docket_reference) ON DELETE RESTRICT,
     FOREIGN KEY (subscription_id) REFERENCES subscription(subscription_id) ON DELETE RESTRICT
 );
+
+CREATE INDEX IF NOT EXISTS idx_delivery_docket_date ON delivery_docket(delivery_date);
+CREATE INDEX IF NOT EXISTS idx_delivery_subscription ON delivery(subscription_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_bill_item_delivery ON bill_item(delivery_reference) WHERE delivery_reference IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS out_of_stock_record (
     delivery_reference TEXT PRIMARY KEY,
