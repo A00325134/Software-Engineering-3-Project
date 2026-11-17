@@ -1,6 +1,7 @@
 package ie.newsagent.ui;
 
 import ie.newsagent.dao.sqlite.*;
+import ie.newsagent.database.DatabaseException;
 import ie.newsagent.database.DatabaseInitializer;
 import ie.newsagent.database.SqliteDatabase;
 import ie.newsagent.model.DeliveryFrequency;
@@ -46,9 +47,9 @@ public final class Main {
                     case "4" -> subscriptionMenu(in, subscriptions);
                     case "5" -> { if (billing == null || payments == null) System.out.println("Billing is unavailable."); else billingMenu(in, billing, payments); }
                     case "6" -> { if (summary == null) System.out.println("Delivery summary is unavailable."); else summaryMenu(summary); }
-                    default -> System.out.println("Choose 0–4.");
+                    default -> System.out.println("Choose 0–6.");
                 }
-            } catch (IllegalArgumentException | IllegalStateException e) { System.out.println("Error: " + e.getMessage()); }
+            } catch (IllegalArgumentException | IllegalStateException | DatabaseException e) { System.out.println("Error: " + e.getMessage()); }
         }
     }
     private static void summaryMenu(DeliverySummaryService summary) {
