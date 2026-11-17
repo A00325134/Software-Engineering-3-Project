@@ -1,47 +1,24 @@
-# Software-Engineering-3-Project
-GP-2026-3-Software-Engineering
-Software Engineering 3 Assignment (60%) –  
+# Newsagent Management System
 
- 
-A newspaper delivery system – brief description of what is required 
+Java 17, Maven, SQLite, and JUnit 5 project. The existing console entry point is `ie.newsagent.ui.Main`; its feature menus remain placeholders while the planned increments are developed.
 
-This system is intended to manage the delivery of newspapers and magazines in some small town or area of a larger town. It is intended for use by newsagents who are only casual users of computer systems and should run on a PC or similar hardware.  
+## Database
 
-Factors which should be taken into account in specifying and designing this system are: 
+The SQLite schema is in `src/main/resources/db/schema.sql`. It defines customers, delivery drivers, publications and stock, subscriptions, bills and bill items, delivery dockets, deliveries, and out-of-stock records. Subscriptions reference customers and publications; bills reference customers and bill items reference bills; deliveries reference dockets and subscriptions; out-of-stock records reference deliveries and publications. Foreign keys use `RESTRICT` so deleting a parent cannot silently erase billing or delivery history. Customer fields and their constraints follow the customer acceptance criteria, including string IDs, 1–24 delivery areas, and exactly seven Eircode characters.
 
-For each delivery person, the system must print, each day, the publications to be delivered to each address. 
+At startup `DatabaseInitializer` creates the schema safely using `CREATE TABLE IF NOT EXISTS`. `SqliteDatabase.openConnection()` enables and verifies SQLite foreign-key enforcement on every connection. The default database file is `data/newsagent.db` under the working directory. Override it with the JVM property `-Dnewsagent.db=/path/to/newsagent.db`. No credentials or secrets are stored in the source.
 
-The system should also print, for the newsagent, a summary of who received what publications each day. 
+Run tests with `mvn test`. Run the application from IntelliJ by running `ie.newsagent.ui.Main` with Maven dependencies on the classpath; startup creates `data/newsagent.db`. To inspect the database in IntelliJ, open the Database tool window, add a SQLite data source, and select `data/newsagent.db`; any SQLite viewer can open the same file.
 
-Whether the newspapers and magazines are in stock. 
+## Delivery-area mapping
 
-Once a month, bills are delivered to customers along with their newspapers. These bills should be computed automatically by the system. 
+The project documents 24 delivery areas but provides no address, Eircode, or geographic mapping. `DeliveryAreaAssigner` defines the mapping seam, and `MapDeliveryAreaAssigner` performs exact-address lookups against supplied mapping data while rejecting blank or unmapped addresses. No address-to-area mapping has been guessed. Customer create/update calls in the existing service still accept an explicit area; once project mapping data and unknown-address behavior are agreed, that strategy can be injected so address changes recalculate the area.
 
-Customers come and go and may be away temporarily on holiday or on business. 
+## Week 1 and Week 2 status
 
-Not all customers necessarily have a delivery every day. 
+- **Week 1 foundation:** SQLite connection management, repeatable schema initialization, database constraints and relationships, future entity tables, and existing DAO contracts are established.
+- **Week 2 US2–US3 persistence:** the SQLite customer DAO creates, retrieves by string ID, lists, and provides an isolated delete contract consistent with the existing DAO. Duplicate IDs and database failures have distinct exceptions; unknown IDs return `Optional.empty()`.
+- **Prepared for later work:** the schema and DAO contracts can support subscriptions, billing, dockets, deliveries, and stock outcomes. Their business operations are not implemented here.
+- **Scheduled later:** full customer update/delete service behavior, UI integration, address mapping, and full customer CRUD acceptance tests are Week 3 work. The existing service contains update/delete methods from the skeleton but they are not claimed as a completed increment.
 
-The system should be able to manage some simple geographic information so that it prints information for the delivery person in the order in which publications are delivered. 
-
-Assignment Details: 
-
-You shall work as part of a collaborative group to which you are assigned. 
-
-You and your group are required to choose and implement an appropriate Software Development Lifecycle to plan and manage the specification, design, development, and testing of the newspaper delivery system. Development requires the proper use of a Version Control System. 
-
-Marking Scheme: 
-
-Proper employment of chosen SDLC – 8% 
-
-Specification of system – 8% 
-
-Design and Development – 8% 
-
-Testing (Strategy, design, and execution) – 8% 
-
-Executable System – 8% 
-
-Individual Reflection on individual contribution and performance of team – 20% 
-
-Due Date: 	Week 12  
-
+The Java `Customer` fields map directly to `customer.customer_id`, `name`, `phone_number`, `address`, `eircode`, and `delivery_area`. Existing model classes suggest the future fields used for the additional tables; those tables are schema groundwork, not a claim that their full requirements are settled.
