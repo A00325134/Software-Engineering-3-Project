@@ -5,6 +5,9 @@ public class Delivery {
     private final String customerId;
     private final String publicationId;
     private DeliveryStatus status;
+    private String customerName;
+    private String publicationName;
+    private java.time.LocalDate deliveryDate;
 
     public Delivery(String deliveryReference, String customerId, String publicationId) {
         this.deliveryReference = deliveryReference; this.customerId = customerId; this.publicationId = publicationId;
@@ -14,4 +17,11 @@ public class Delivery {
     public String getPublicationId() { return publicationId; }
     public DeliveryStatus getStatus() { return status; }
     public void setStatus(DeliveryStatus status) { this.status = status; }
+    public String getCustomerName() { return customerName; }
+    public String getPublicationName() { return publicationName; }
+    public java.time.LocalDate getDeliveryDate() { return deliveryDate; }
+    public void setDeliveryDate(java.time.LocalDate deliveryDate) { this.deliveryDate=deliveryDate; }
+    public void setSummaryDetails(String customerName, String publicationName, java.time.LocalDate deliveryDate) {
+        this.customerName=customerName; this.publicationName=publicationName; this.deliveryDate=deliveryDate;
+    }
 }

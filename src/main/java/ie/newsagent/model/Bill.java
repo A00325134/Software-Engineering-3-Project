@@ -11,6 +11,7 @@ public class Bill {
     private final List<BillItem> items;
     private BigDecimal monthlyTotal;
     private BillPaymentStatus paymentStatus = BillPaymentStatus.UNPAID;
+    private String docketReference;
 
     public Bill(String billReference, String customerId, YearMonth billingMonth, List<BillItem> items, BigDecimal monthlyTotal) {
         this.billReference = billReference; this.customerId = customerId; this.billingMonth = billingMonth;
@@ -24,4 +25,6 @@ public class Bill {
     public void setMonthlyTotal(BigDecimal monthlyTotal) { this.monthlyTotal = monthlyTotal; }
     public BillPaymentStatus getPaymentStatus() { return paymentStatus; }
     public void setPaymentStatus(BillPaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
+    public String getDocketReference() { return docketReference; }
+    public void setDocketReference(String docketReference) { this.docketReference=docketReference; }
 }
