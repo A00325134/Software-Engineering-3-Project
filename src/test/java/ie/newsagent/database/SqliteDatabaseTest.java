@@ -54,10 +54,27 @@ class SqliteDatabaseTest {
 
             assertTrue(tableNames.containsAll(Set.of("customer", "delivery_driver", "publication",
                     "subscription", "bill", "bill_item", "delivery_docket", "delivery",
-                    "out_of_stock_record")));
+                    "out_of_stock_record", "delivery_area", "docket_item")));
             assertThrows(SQLException.class, () -> statement.executeUpdate(
                     "INSERT INTO subscription (subscription_id, customer_id, publication_id, " +
                             "delivery_frequency) VALUES ('s1', 'missing', 'missing', 'MONTHLY')"));
+        }
+    }
+
+    @Test
+    void seedsEveryDeliveryAreaAndRejectsAnInvalidArea() throws Exception {
+        database.initialiseSchema();
+        try (var connection = database.openConnection(); var statement = connection.createStatement();
+             var result = statement.executeQuery("SELECT COUNT(*), MIN(area_id), MAX(area_id) FROM delivery_area")) {
+            assertTrue(result.next());
+            assertEquals(24, result.getInt(1));
+            assertEquals(1, result.getInt(2));
+            assertEquals(24, result.getInt(3));
+        }
+        try (var connection = database.openConnection(); var statement = connection.createStatement()) {
+            assertThrows(SQLException.class, () -> statement.executeUpdate(
+                    "INSERT INTO delivery_docket(docket_reference,delivery_date,delivery_area) " +
+                            "VALUES('invalid-area','2026-11-03',25)"));
         }
     }
 
