@@ -1,24 +1,39 @@
 # Newsagent Management System
 
-Java 17, Maven, SQLite, and JUnit 5 project. The existing console entry point is `ie.newsagent.ui.Main`; its feature menus remain placeholders while the planned increments are developed.
+This is our Java project for managing some of the day-to-day work in a newsagent. The system uses a console menu, a service layer for the main rules, and SQLite for saving data. It is built with Java 17 and Maven, with JUnit 5 tests.
 
-## Database
+## What the project can do so far
 
-The SQLite schema is in `src/main/resources/db/schema.sql`. It defines customers, delivery drivers, publications and stock, subscriptions, bills and bill items, delivery dockets, deliveries, and out-of-stock records. Subscriptions reference customers and publications; bills reference customers and bill items reference bills; deliveries reference dockets and subscriptions; out-of-stock records reference deliveries and publications. Foreign keys use `RESTRICT` so deleting a parent cannot silently erase billing or delivery history. Customer fields and their constraints follow the customer acceptance criteria, including string IDs, 1–24 delivery areas, and exactly seven Eircode characters.
+The work completed for Weeks 1–6 covers the first three planned increments:
 
-At startup `DatabaseInitializer` creates the schema safely using `CREATE TABLE IF NOT EXISTS`. `SqliteDatabase.openConnection()` enables and verifies SQLite foreign-key enforcement on every connection. The default database file is `data/newsagent.db` under the working directory. Override it with the JVM property `-Dnewsagent.db=/path/to/newsagent.db`. No credentials or secrets are stored in the source.
+- **Week 1 – Project setup:** We set up the Java/Maven project, shared models and test structure, and the SQLite database connection and schema. The database turns on foreign-key checks for each connection.
+- **Weeks 2–3 – Customers:** A user can create, view, list, edit and delete customer records. Customer input is checked for required fields, field lengths, a seven-character Eircode, and a delivery area from 1 to 24. The database prevents deleting customers that still have related history.
+- **Week 4 – Delivery drivers:** A user can create, view, list, edit and delete driver profiles. The database prevents deleting drivers referenced by a delivery docket.
+- **Week 5 – Publications and stock:** A user can create and view publications, see all publications, update stock and view low-stock items. The low-stock threshold is 5, as currently defined in the project schema. Stock can be reduced to zero but cannot be negative or exceed 1000.
+- **Week 6 – Subscriptions:** A user can create, view, list, pause, resume and delete subscriptions. Subscriptions currently use monthly delivery frequency. Their paused state is saved in SQLite and remains after reopening the database.
 
-Run tests with `mvn test`. Run the application from IntelliJ by running `ie.newsagent.ui.Main` with Maven dependencies on the classpath; startup creates `data/newsagent.db`. To inspect the database in IntelliJ, open the Database tool window, add a SQLite data source, and select `data/newsagent.db`; any SQLite viewer can open the same file.
+The console calls the service layer, and services use DAOs for database work. This keeps SQL out of the user interface. The current menu and the supported workflows are for newsagent administration.
 
-## Delivery-area mapping
+## Running the project
 
-The project documents 24 delivery areas but provides no address, Eircode, or geographic mapping. `DeliveryAreaAssigner` defines the mapping seam, and `MapDeliveryAreaAssigner` performs exact-address lookups against supplied mapping data while rejecting blank or unmapped addresses. No address-to-area mapping has been guessed. Customer create/update calls in the existing service still accept an explicit area; once project mapping data and unknown-address behavior are agreed, that strategy can be injected so address changes recalculate the area.
+The main class is `ie.newsagent.ui.Main`. Run it from IntelliJ with the Maven dependencies available, or build and run it with Maven. Starting the application creates the database schema if needed.
 
-## Week 1 and Week 2 status
+```text
+mvn test
+```
 
-- **Week 1 foundation:** SQLite connection management, repeatable schema initialization, database constraints and relationships, future entity tables, and existing DAO contracts are established.
-- **Week 2 US2–US3 persistence:** the SQLite customer DAO creates, retrieves by string ID, lists, and provides an isolated delete contract consistent with the existing DAO. Duplicate IDs and database failures have distinct exceptions; unknown IDs return `Optional.empty()`.
-- **Prepared for later work:** the schema and DAO contracts can support subscriptions, billing, dockets, deliveries, and stock outcomes. Their business operations are not implemented here.
-- **Scheduled later:** full customer update/delete service behavior, UI integration, address mapping, and full customer CRUD acceptance tests are Week 3 work. The existing service contains update/delete methods from the skeleton but they are not claimed as a completed increment.
+The default database file is `data/newsagent.db`, relative to the working directory. To use another path, set the JVM property `-Dnewsagent.db=/path/to/newsagent.db`. Tests use their own temporary database files so they do not modify application data.
 
-The Java `Customer` fields map directly to `customer.customer_id`, `name`, `phone_number`, `address`, `eircode`, and `delivery_area`. Existing model classes suggest the future fields used for the additional tables; those tables are schema groundwork, not a claim that their full requirements are settled.
+## Database and validation notes
+
+The schema is in `src/main/resources/db/schema.sql`. It includes the customer, driver, publication, subscription, billing and delivery tables. Some billing and delivery models/tables are groundwork for later project increments; a complete billing or delivery workflow is not part of the Weeks 1–6 menu.
+
+Customer delivery areas are entered explicitly. The project has 24 areas, but no address-to-area lookup data has been provided, so the application does not guess an area from an address. Driver profiles store a password hash field; password hashing and authentication are not implemented in this increment.
+
+## Tests
+
+Run the full test suite with `mvn test`. Tests cover SQLite schema and DAO behavior, customer and Week 4–6 service behavior, and console acceptance flows. Database tests use isolated temporary databases. The last full run completed with 49 tests passing and no failures, errors or skipped tests.
+
+## Next increment
+
+The nine-week plan places delivery summaries, billing and payment recording in Week 7. Delivery-driver docket and delivery-status features are planned for Week 8, followed by final system testing and submission preparation in Week 9.
