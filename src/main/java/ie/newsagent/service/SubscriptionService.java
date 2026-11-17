@@ -17,6 +17,16 @@ public final class SubscriptionService {
     public Subscription get(String id) { return dao.findById(id).orElseThrow(() -> new IllegalArgumentException("Subscription not found: " + id)); }
     public List<Subscription> getAll() { return dao.findAll(); }
     public List<Subscription> getForCustomer(String customerId) { return dao.findByCustomerId(customerId); }
+    public Subscription update(String id, String publicationId, DeliveryFrequency frequency) {
+        if (id == null || id.isBlank() || publicationId == null || publicationId.isBlank() || frequency == null) {
+            throw new IllegalArgumentException("Subscription ID, publication, and delivery frequency are required.");
+        }
+        Subscription subscription = get(id);
+        subscription.setPublicationId(publicationId.trim());
+        subscription.setDeliveryFrequency(frequency);
+        if (!dao.update(subscription)) throw new IllegalArgumentException("Subscription not found: " + id);
+        return subscription;
+    }
     public Subscription pause(String id) { return setPaused(id, true); }
     public Subscription resume(String id) { return setPaused(id, false); }
     public void delete(String id) { if (!dao.deleteById(id)) throw new IllegalArgumentException("Subscription not found: " + id); }

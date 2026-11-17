@@ -26,6 +26,10 @@ class WeekFourToSixServiceTest {
         var service=new PublicationService(new SqlitePublicationDao(db));
         service.create("P1","Daily News",10);
         service.create("P2","Evening News",10);
+        assertThrows(IllegalArgumentException.class,()->service.create("P1","Replacement News",10));
+        assertEquals("P1",service.updateName("P1","Morning News").getPublicationId());
+        assertEquals("Morning News",service.get("P1").getName());
+        assertThrows(IllegalArgumentException.class,()->service.updateName("P1","ab"));
         service.updateStock("P1",0);
         service.updateStock("P2",4);
         assertEquals(0,service.get("P1").getStockQuantity());
@@ -39,8 +43,11 @@ class WeekFourToSixServiceTest {
     @Test void subscriptionPauseAndResumePersist() {
         new SqliteCustomerDao(db).save(new Customer("C1234","Alex Murphy","0871234567","10 Main Street","D02X285",1));
         new SqlitePublicationDao(db).save(new Publication("P1","Daily News",20));
+        new SqlitePublicationDao(db).save(new Publication("P2","Morning Paper",20));
         var service=new SubscriptionService(new SqliteSubscriptionDao(db));
         service.create("S1","C1234","P1",DeliveryFrequency.MONTHLY);
+        assertEquals("P2",service.update("S1","P2",DeliveryFrequency.MONTHLY).getPublicationId());
+        assertEquals("P2",service.get("S1").getPublicationId());
         assertTrue(service.pause("S1").isPaused());
         assertTrue(service.get("S1").isPaused());
         assertFalse(service.resume("S1").isPaused());
