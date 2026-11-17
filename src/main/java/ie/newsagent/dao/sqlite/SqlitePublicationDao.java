@@ -53,6 +53,21 @@ public class SqlitePublicationDao implements PublicationDao {
     }
 
     @Override
+    public boolean updateName(String publicationId, String name) {
+        if (name == null || name.trim().length() < 3 || name.trim().length() > 50) {
+            throw new IllegalArgumentException("Publication name must be 3-50 characters");
+        }
+        try (var connection = database.openConnection(); var statement = connection.prepareStatement(
+                "UPDATE publication SET name = ? WHERE publication_id = ?")) {
+            statement.setString(1, name.trim());
+            statement.setString(2, publicationId);
+            return statement.executeUpdate() == 1;
+        } catch (SQLException exception) {
+            throw new DatabaseException("Could not update publication " + publicationId, exception);
+        }
+    }
+
+    @Override
     public boolean updateStock(String publicationId, int stockQuantity) {
         if (stockQuantity < 0 || stockQuantity > 1000) throw new IllegalArgumentException("Stock quantity must be between 0 and 1000");
         try (var connection = database.openConnection(); var statement = connection.prepareStatement(
