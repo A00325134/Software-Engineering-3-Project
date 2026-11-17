@@ -1,12 +1,14 @@
 package ie.newsagent.ui;
 
 import java.util.Scanner;
+import ie.newsagent.database.DatabaseInitializer;
 
 /** Minimal console entry point; keep UI concerns out of service classes. */
 public final class Main {
     private Main() {}
 
     public static void main(String[] args) {
+        DatabaseInitializer.initialiseApplicationDatabase();
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Newsagent Management System");
             System.out.println("1. Customer management");
