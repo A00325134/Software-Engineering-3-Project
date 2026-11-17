@@ -25,9 +25,16 @@ class WeekFourToSixServiceTest {
     @Test void publicationStockChangesAndLowStockFollowFiveItemThreshold() {
         var service=new PublicationService(new SqlitePublicationDao(db));
         service.create("P1","Daily News",10);
-        assertEquals(4,service.updateStock("P1",4).getStockQuantity());
+        service.create("P2","Evening News",10);
+        service.updateStock("P1",0);
+        service.updateStock("P2",4);
+        assertEquals(0,service.get("P1").getStockQuantity());
         assertEquals("P1",service.lowStock().get(0).getPublicationId());
+        assertEquals(2,service.lowStock().size());
+        service.updateStock("P2",5);
+        assertEquals(1,service.lowStock().size());
         assertThrows(IllegalArgumentException.class,()->service.updateStock("P1",-1));
+        assertThrows(IllegalArgumentException.class,()->service.updateStock("P1",1001));
     }
     @Test void subscriptionPauseAndResumePersist() {
         new SqliteCustomerDao(db).save(new Customer("C1234","Alex Murphy","0871234567","10 Main Street","D02X285",1));
