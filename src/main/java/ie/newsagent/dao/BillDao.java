@@ -9,4 +9,5 @@ public interface BillDao {
     Optional<Bill> findByReference(String billReference);
     List<Bill> findByCustomerId(String customerId);
     List<Bill> findAll();
+    boolean markPaid(String billReference);
 }

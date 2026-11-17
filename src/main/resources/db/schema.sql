@@ -75,7 +75,6 @@ CREATE TABLE IF NOT EXISTS delivery (
 
 CREATE INDEX IF NOT EXISTS idx_delivery_docket_date ON delivery_docket(delivery_date);
 CREATE INDEX IF NOT EXISTS idx_delivery_subscription ON delivery(subscription_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_bill_item_delivery ON bill_item(delivery_reference) WHERE delivery_reference IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS out_of_stock_record (
     delivery_reference TEXT PRIMARY KEY,
