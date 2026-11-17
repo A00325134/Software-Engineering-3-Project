@@ -1,5 +1,6 @@
 # Newsagent Management System
 
+# To run the Project please use: src/main/java/ie/newsagent/ui/Main.java
 This is our Java project for managing the day-to-day operations of a newsagent. I worked on the project as part of a three-person Software Engineering team, developing the database, application functionality and user interface across the nine-week project.
 
 The system uses a console-based interface, Java services for business logic and SQLite for storing application data. It is built using **Java 17, Maven, JDBC and JUnit 5**.
