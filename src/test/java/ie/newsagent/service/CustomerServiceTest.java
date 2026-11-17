@@ -29,6 +29,17 @@ class CustomerServiceTest {
     }
 
     @Test
+    void updatesAndDeletesCustomerThroughDaoUpdateContract() {
+        CustomerService service = new CustomerService(new InMemoryCustomerDao());
+        Customer created = service.create("Alex Murphy", "0871234567", "10 Main Street", "D02X285", 1);
+        Customer updated = service.update(created.getCustomerId(), "Alex Updated", "0871234567", "12 Main Street", "D02X286", 2);
+        assertEquals("Alex Updated", service.get(created.getCustomerId()).getName());
+        assertEquals(2, updated.getDeliveryArea());
+        service.delete(created.getCustomerId());
+        assertThrows(IllegalArgumentException.class, () -> service.get(created.getCustomerId()));
+    }
+
+    @Test
     void rejectsUnknownCustomer() {
         CustomerService service = new CustomerService(new InMemoryCustomerDao());
 

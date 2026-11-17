@@ -45,7 +45,10 @@ public class CustomerService {
         customer.setAddress(address.trim());
         customer.setEircode(eircode.trim());
         customer.setDeliveryArea(deliveryArea);
-        return customerDao.save(customer);
+        if (!customerDao.updateById(customerId, customer)) {
+            throw new IllegalArgumentException("Customer not found: " + customerId);
+        }
+        return customer;
     }
 
     private void validate(String name, String phone, String address, String eircode, int deliveryArea) {
